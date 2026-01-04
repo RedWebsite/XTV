@@ -20,8 +20,9 @@ import {
   getDoubanRecommends,
 } from '@/lib/douban.client';
 import { DoubanItem, DoubanResult } from '@/lib/types';
-import { generateCacheKey } from '@/lib/unified-cache';
+import { generateCacheKey, globalCache } from '@/lib/unified-cache';
 import useBrowseVideos from '@/hooks/useBrowseVideos';
+import { useImagePreload } from '@/hooks/useImagePreload';
 import { useSourceFilter } from '@/hooks/useSourceFilter';
 
 import DoubanCardSkeleton from '@/components/DoubanCardSkeleton';
@@ -170,6 +171,17 @@ function DoubanPageClient() {
     categoryId: sourceCategoryId,
     enabled: shouldBrowseSourceCategory,
   });
+
+  // 【性能优化】预加载首屏图片
+  const imageUrls = useMemo(
+    () =>
+      (currentSource !== 'auto' ? sourceData : doubanData)
+        .slice(0, 12)
+        .map((item) => item.poster)
+        .filter(Boolean),
+    [currentSource, sourceData, doubanData],
+  );
+  useImagePreload(imageUrls, 12);
 
   // 获取自定义分类数据
   useEffect(() => {
