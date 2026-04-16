@@ -175,11 +175,16 @@ function DoubanPageClient() {
   // 【性能优化】预加载首屏图片
   const imageUrls = useMemo(
     () =>
-      (currentSource !== 'auto' ? sourceData : doubanData)
-        .slice(0, 12)
-        .map((item) => item.poster)
-        .filter(Boolean),
-    [currentSource, sourceData, doubanData],
+      currentSource !== 'auto'
+        ? sourceCategoryItems
+            .slice(0, 12)
+            .map((item) => item.vod_pic || '')
+            .filter(Boolean)
+        : doubanData
+            .slice(0, 12)
+            .map((item) => item.poster || '')
+            .filter(Boolean),
+    [currentSource, sourceCategoryItems, doubanData],
   );
   useImagePreload(imageUrls, 12);
 
